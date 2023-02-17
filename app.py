@@ -12,33 +12,64 @@
 # - Если чайник включен, выводить температуру чайника каждую секунду;
 # - В любой момент пользователь может нажать кнопку, чтобы отключить чайник, в этом случае, программа завершится;
 
-import time
+import time, keyboard
+
+BOILING_TEMPERATURE = 100
+AMBIENT_TEMPERATURE = 20
 
 class ElectricKettle:
-    def __init__(self, water_amount, boiling_time):
-        self.water_amount = water_amount
-        self.boiling_time = boiling_time
-        self.temperature = 0
+    def __init__(self):
+        self.boiling_time = 10
+        self.temperature = AMBIENT_TEMPERATURE
+        self.max_water_amount = 1.0
         self.is_on = False
+        self.water_amount = 0
 
     def __str__(self):
-        return f'Water amount: {self.water_amount}\nBoiling time: {self.boiling_time}\nTemperature: {self.temperature}\nIs on: {self.is_on}'
+        return f'''Характеристики чайника:
+                Количество воды: {self.water_amount} л
+                Время закипания: {self.boiling_time} сек
+                Текущая температура: {self.temperature} °C
+                Режим: {'включен' if self.is_on else 'выключен'}
+                '''
 
     def turn_on(self):
         self.is_on = True
-        print('Kettle is on')
+        print('Чайник включен')
 
     def turn_off(self):
         self.is_on = False
-        print('Kettle is off')
+        print('Чайник выключен')
 
     def boil(self):
-        self.temperature = 100
-        print('Kettle is boiling')
+        # температура линейно увеличивается c temperature до BOILING_TEMPERATURE
+        print('Чайник нагревается')
+        step = (BOILING_TEMPERATURE - AMBIENT_TEMPERATURE) / self.boiling_time
+        for temperature in range(AMBIENT_TEMPERATURE, BOILING_TEMPERATURE, int(step)):
+            self.temperature = temperature
+            print(f'Температура: {self.temperature}')
+            time.sleep(1)
+            if keyboard.is_pressed('p'):
+                self.turn_off()
+                print(self)
+                self.cool()
+                print(self)
+                exit()
+        self.temperature = temperature = BOILING_TEMPERATURE
+        print('Чайник вскипел')
 
-    def stop(self):
-        self.temperature = 0
-        print('Kettle is stopped')
+    def cool(self):
+        # температура линейно уменьшается c temperature до BOILING_TEMPERATURE
+        step = (BOILING_TEMPERATURE - AMBIENT_TEMPERATURE) / self.boiling_time
+        for temperature in reversed(range(AMBIENT_TEMPERATURE, BOILING_TEMPERATURE, int(step))):
+            self.temperature = temperature
+            print(f'Температура: {self.temperature}')
+            time.sleep(1)
+        self.temperature = temperature = self.temperature
+        print('Чайник остыл')
+
+    def get_is_on(self):
+        return self.is_on
 
     def get_temperature(self):
         return self.temperature
@@ -50,6 +81,9 @@ class ElectricKettle:
         return self.boiling_time
 
     def set_water_amount(self, water_amount):
+        # проверяем, что вода не превышает максимально возможное кол-во
+        if water_amount > self.max_water_amount:
+            print(f'Воды в чайнике не может быть больше {self.max_water_amount} л, лишняя вода пролилась')
         self.water_amount = water_amount
 
     def set_boiling_time(self, boiling_time):
@@ -63,17 +97,30 @@ class ElectricKettle:
 
 
 def main():
-    water_amount = float(input('Enter water amount: '))
-    boiling_time = int(input('Enter boiling time: '))
-    kettle = ElectricKettle(water_amount, boiling_time)
+    # создаем чайник
+    kettle = ElectricKettle()
+    print(kettle)
+    # наливаем воду
+    try:
+        water_amount = float(input('Налейте воду (введите кол-во воды): '))
+    except ValueError:
+        print('Введено некорректное значение, вода не налита')
+        return
+    kettle.set_water_amount(water_amount)
+    print(kettle)
+    print('Нажмите "P" (Power) для включения/выключения чайника')
+    keyboard.wait('p')
+    # включаем чайник
     kettle.turn_on()
+    print(kettle)
+    # нагреваем воду
     kettle.boil()
     print(kettle)
-    print('Kettle is boiling...')
-    time.sleep(kettle.get_boiling_time())
-    kettle.stop()
-    print(kettle)
+    # выключаем чайник
     kettle.turn_off()
+    print(kettle)
+    # чайник остывает
+    kettle.cool()
     print(kettle)
 
 
