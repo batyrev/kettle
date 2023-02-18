@@ -1,4 +1,4 @@
-import time, keyboard
+import time
 from config import *
 
 class ElectricKettle:
@@ -24,7 +24,6 @@ class ElectricKettle:
         logging.info('Чайник включен')
 
     def turn_off(self):
-        keyboard.remove_all_hotkeys()
         self.is_on = False
         logging.info('Чайник выключен')
 
@@ -55,14 +54,18 @@ class ElectricKettle:
     def set_water_amount(self, water_amount):
         # проверяем, что объем воды лежит в нужном диапазоне
         if water_amount > self.max_water_amount:
-            logging.warning(f'Воды в чайнике не может быть больше {self.max_water_amount} л, лишняя вода пролилась')
+            message = f'Воды в чайнике не может быть больше {self.max_water_amount} л, лишняя вода пролилась'
+            logging.warning(message)
             self.water_amount = self.max_water_amount
-            return
+            return True, message
         elif water_amount <= self.min_water_amount:
-            logging.error(f'Введено некорректное значение, вода не налита')
-            exit()
+            message = f'Введено некорректное значение, вода не налита (минимальный объем воды: {self.min_water_amount} л)'
+            logging.error(message)
+            return False, message
         self.water_amount = water_amount
-        logging.info(f'Новый объем воды в чайнике: {self.water_amount} л')
+        message = f'Новый объем воды в чайнике: {self.water_amount} л'
+        logging.info(message)
+        return True, message
 
     def set_temperature(self, temperature):
         self.temperature = temperature

@@ -1,5 +1,4 @@
 from flask import Flask, request
-import keyboard
 from os import path
 from kettle import ElectricKettle
 from config import logging
@@ -13,7 +12,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + \
 # создаем чайник
 kettle = ElectricKettle()
 
-@app.route('/', methods=['GET', 'PUT'])
+@app.route('/', methods=['GET', 'POST' ,'PUT', 'DELETE'])
 def main():
     if request.method == "GET":
         # берем в руки чайник
@@ -21,24 +20,31 @@ def main():
         logging.info(kettle)
         db.create_state(kettle)
         return {'message': 'Налейте воду (введите объем в литрах): '}
-    elif request.method == "PUT":
+    elif request.method == "POST":
         # наливаем воду
         try:
             water_amount = float(request.get_json()['water_amount'])
         except ValueError:
             logging.error('Введено некорректное значение, вода не налита')
-            return {'message': 'Введено некорректное значение, вода не налита'}
+            return {'error': 'Введено некорректное значение, вода не налита'}
         water_amount = kettle.get_water_amount() + water_amount
-        kettle.set_water_amount(water_amount)
+        is_water_amoun_set, message = kettle.set_water_amount(water_amount)
+        if not is_water_amoun_set:
+            return {'error': message}
         db.create_state(kettle)
-        print('Нажмите "P" (Power) для включения/выключения чайника')
-        keyboard.wait('p')
+        return {'message': message}
+    elif request.method == "PUT":
         # включаем чайник
         kettle.turn_on()
         db.create_state(kettle)
-        keyboard.add_hotkey('p', kettle.turn_off)
         kettle.boil()
         db.create_state(kettle)
+        return {'message': 'Чайник вскипел'}
+    elif request.method == "DELETE":
+        # выключаем чайник
+        kettle.turn_off()
+        db.create_state(kettle)
+        # чайник остывает
         kettle.cooling()
         db.create_state(kettle)
         return {'message': 'Чайник готов'}
