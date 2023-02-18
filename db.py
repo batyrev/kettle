@@ -28,4 +28,9 @@ def create_state(kettle: ElectricKettle):
         db.session.commit()
 
 def get_last_state():
-    return States.query.order_by(States.id.desc()).first()
+    with app.app_context():
+        return States.query.order_by(States.id.desc()).first()
+
+def get_all_states():
+    with app.app_context():
+        return States.query.all()

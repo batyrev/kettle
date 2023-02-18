@@ -1,3 +1,11 @@
+import logging
+# настройки логирования
+file_log = logging.FileHandler('logging.log', encoding='utf-8')
+console_out = logging.StreamHandler()
+logging.basicConfig(format = u'%(levelname)-8s [%(asctime)s] %(message)s',
+                    level = logging.DEBUG,
+                    handlers=(file_log, console_out))
+
 # температура кипения воды
 BOILING_TEMPERATURE = 100
 # температура окружающей среды

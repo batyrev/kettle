@@ -1,12 +1,5 @@
 import time, keyboard
 from config import *
-import logging
-
-file_log = logging.FileHandler('logging.log', encoding='utf-8')
-console_out = logging.StreamHandler()
-logging.basicConfig(format = u'%(levelname)-8s [%(asctime)s] %(message)s',
-                    level = logging.DEBUG,
-                    handlers=(file_log, console_out))
 
 class ElectricKettle:
     def __init__(self):
@@ -29,8 +22,6 @@ class ElectricKettle:
     def turn_on(self):
         self.is_on = True
         logging.info('Чайник включен')
-        keyboard.add_hotkey('p', self.turn_off)
-        self.boil()
 
     def turn_off(self):
         keyboard.remove_all_hotkeys()
