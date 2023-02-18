@@ -1,0 +1,5 @@
+README.md
+.gitignore
+kettle_states.db
+logging.log
+__pycache__
