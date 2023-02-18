@@ -17,7 +17,7 @@ class ElectricKettle:
                 f"Текущее состояние:\n" \
                 f"Количество воды: {self.water_amount} л\n" \
                 f"Текущая температура: {self.temperature} °C\n" \
-                f"Режим: {'включен' if self.is_on else 'выключен'}\n" \
+                f"Режим: {'включен' if self.is_on else 'выключен'}\n"
 
     def turn_on(self):
         self.is_on = True
@@ -29,7 +29,6 @@ class ElectricKettle:
         keyboard.remove_all_hotkeys()
         self.is_on = False
         print('Чайник выключен')
-        self.cool()
 
     def boil(self):
         print('Чайник нагревается')
@@ -37,14 +36,13 @@ class ElectricKettle:
         step = (BOILING_TEMPERATURE - AMBIENT_TEMPERATURE) / self.boiling_time
         for temperature in range(AMBIENT_TEMPERATURE, BOILING_TEMPERATURE + 1, int(step)):
             if self.is_on is False:
-                time.sleep((self.temperature - AMBIENT_TEMPERATURE) / step + 1)
                 return
             self.set_temperature(temperature)
             time.sleep(1)
         print(f'Чайник вскипел, температура: {self.temperature} °C')
         self.turn_off()
 
-    def cool(self):
+    def cooling(self):
         print('Чайник остывает')
         start_temperature = self.temperature
         if start_temperature != AMBIENT_TEMPERATURE:
@@ -70,3 +68,6 @@ class ElectricKettle:
     def set_temperature(self, temperature):
         self.temperature = temperature
         print(f'Текущая температура: {self.temperature} °C')
+
+    def get_temperature(self):
+        return self.temperature
