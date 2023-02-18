@@ -22,36 +22,36 @@ class ElectricKettle:
     def turn_on(self):
         self.is_on = True
         print('Чайник включен')
+        keyboard.add_hotkey('p', self.turn_off)
+        self.boil()
 
     def turn_off(self):
+        keyboard.remove_all_hotkeys()
         self.is_on = False
         print('Чайник выключен')
+        self.cool()
 
     def boil(self):
-        # температура линейно увеличивается c AMBIENT_TEMPERATURE до BOILING_TEMPERATURE
         print('Чайник нагревается')
+        # температура линейно увеличивается c AMBIENT_TEMPERATURE до BOILING_TEMPERATURE
         step = (BOILING_TEMPERATURE - AMBIENT_TEMPERATURE) / self.boiling_time
-        for temperature in range(AMBIENT_TEMPERATURE, BOILING_TEMPERATURE, int(step)):
-            self.temperature = temperature
-            print(f'Текущая температура: {self.temperature} °C')
+        for temperature in range(AMBIENT_TEMPERATURE, BOILING_TEMPERATURE + 1, int(step)):
+            if self.is_on is False:
+                time.sleep((self.temperature - AMBIENT_TEMPERATURE) / step + 1)
+                return
+            self.set_temperature(temperature)
             time.sleep(1)
-            if keyboard.is_pressed('p'):
-                self.turn_off()
-                if self.temperature != AMBIENT_TEMPERATURE:
-                    self.cool()
-                exit()
-        self.temperature = temperature = BOILING_TEMPERATURE
         print(f'Чайник вскипел, температура: {self.temperature} °C')
+        self.turn_off()
 
     def cool(self):
         print('Чайник остывает')
-        # температура линейно уменьшается c start_temperature до AMBIENT_TEMPERATURE
         start_temperature = self.temperature
         if start_temperature != AMBIENT_TEMPERATURE:
+            # температура линейно уменьшается c start_temperature до AMBIENT_TEMPERATURE
             step = (BOILING_TEMPERATURE - AMBIENT_TEMPERATURE) / self.boiling_time
             for temperature in reversed(range(AMBIENT_TEMPERATURE, start_temperature, int(step))):
-                self.temperature = temperature
-                print(f'Текущая температура: {self.temperature} °C')
+                self.set_temperature(temperature)
                 time.sleep(1)
         print(f'Чайник остыл, температура: {self.temperature} °C')
 
@@ -66,3 +66,7 @@ class ElectricKettle:
             exit()
         self.water_amount = water_amount
         print(f'Новый объем воды в чайнике: {self.water_amount} л')
+
+    def set_temperature(self, temperature):
+        self.temperature = temperature
+        print(f'Текущая температура: {self.temperature} °C')

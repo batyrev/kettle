@@ -18,12 +18,6 @@ def main():
     keyboard.wait('p')
     # включаем чайник
     kettle.turn_on()
-    # нагреваем воду
-    kettle.boil()
-    # выключаем чайник
-    kettle.turn_off()
-    # чайник остывает
-    kettle.cool()
 
 
 if __name__ == '__main__':
